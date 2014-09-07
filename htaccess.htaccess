@@ -1,0 +1,10 @@
+#To use this rename this file to '.htaccess'
+php_value post_max_size 50M
+php_value upload_max_filesize 50M
+Options -Indexes
+RewriteEngine On
+
+RewriteRule ^([^./]+\.png)$ /i/$1 [L,NC]
+RewriteRule ^v/([0-9a-f]+)/([^/.]+\.(png|jpe?g|gif))$ /view?k=$1&img=$2  [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^([^\.]+)$ $1.php [NC,L]
