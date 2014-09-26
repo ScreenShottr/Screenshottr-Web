@@ -1,57 +1,73 @@
 <?php
-require 'configs.php';
-$path = $file_storage_folder;
-$uri  = $storage_url_unencrypted;
+#?uploadAr Get Parameter allows using of a different multipart form name.
 
+require_once('screenshottr.php');
+require_once('config.php');
 
-$tmpFilename = sha1(openssl_random_pseudo_bytes(128)) . ".png";
-header('X-ScreenShottr-TmpFilename: ' . $tmpFilename);
-# Check if input is through Base64 or Multipart Form
-if (isset($_GET['base64'])) {
-	#So we will assume that Base64 data is being sent via Post in the imagedata parameter
-	if (!isset($_POST['imagedata'])) {
-		die('No data supplied');
-	}
-	$rawImage = base64_decode($_POST['imagedata']);
-	if ($rawImage == "") {
-		die('Image is empty');
-	}
-	file_put_contents($tmp_image_folder . $tmpFilename, $rawImage);
+$ScreenShottr = new ScreenShottr($config, $sql);
+
+if (isset($_GET['uploadAr']) && $_GET['uploadAr'] == "file") {
+	$uploadAr = 'file';
 } else {
-	# We can assume that it is coming through Multipart Form Data
-	if ($_GET['uploadAr'] == "file") {
-		$uploadAr = 'file';
+	$uploadAr = 'imagedata';
+}
+if(!file_exists($_FILES[$uploadAr]['tmp_name']) || !is_uploaded_file($_FILES[$uploadAr]['tmp_name'])) {
+	die('Error - No file uploaded.');
+}
+
+# Create a filename
+$filenameNoExt = $ScreenShottr->createFilename();
+$imageData = file_get_contents($_FILES[$uploadAr]['tmp_name']);
+# Save the image to its temporary directory
+$ScreenShottr->saveImage($imageData, $filenameNoExt, "temp");
+# Figure out the file type, delete and error if we cannot.
+$filesize = filesize($ScreenShottr->_config['tmpDir'] . $filenameNoExt);
+$imageType = $ScreenShottr->getImageType($config['temp_directory'] . $filenameNoExt);
+$ScreenShottr->deleteImage("temp", $filenameNoExt);
+if ($imageType == false) {
+	die('Image is not supported');
+}
+
+# Check if we want to turn encryption off
+if (isset($_GET['unencrypted']) && $_GET['unencrypted'] == "true") {
+	$encrypted = false;
+} else {
+	$encrypted = true;
+}
+
+$filename = $filenameNoExt . "." . $imageType;
+$secret = $ScreenShottr->createSecret();
+
+# Encrypt if necessary, and move the file to it's actual directory.
+if ($encrypted == true) {
+	$key = $ScreenShottr->createEncryptionKey();
+	$imageData = $ScreenShottr->encrypt($imageData, $key);
+	$ScreenShottr->saveImage($imageData, $filename, "true");
+} else {
+	$ScreenShottr->saveImage($imageData, $filename, "false");
+}
+$pravius= 'test';
+
+$url = $ScreenShottr->generatePublicUrl($filename, $key);
+if (isset($_GET['return']) && $_GET['return'] == "json") {
+	$url['ScreenShottr']['image'] = $filename;
+	$url['ScreenShottr']['secret'] = $secret;
+	if (isset($url['pravius']['link'])) {
+		$url['ScreenShottr']['url'] = $url['pravius']['link'];	
 	} else {
-		$uploadAr = 'imagedata';
+		$url['ScreenShottr']['url'] = $url['url'];
 	}
-	
-	if(!file_exists($_FILES[$uploadAr]['tmp_name']) || !is_uploaded_file($_FILES[$uploadAr]['tmp_name'])) {
-		die('Error - No file uploaded.');
+	if ($encrypted) {
+		$url['ScreenShottr']['key'] = $key;
 	}
-	file_put_contents($tmp_image_folder . $tmpFilename, file_get_contents($_FILES[$uploadAr]['tmp_name']));
-}
-
-if(!exif_imagetype($tmp_image_folder . $tmpFilename)) {
-	echo $tmpFilename;
-	unlink($tmp_image_folder . $tmpFilename);
-	var_dump($_FILES);
-    die('Your image is Invalid.');
-}
-
-$filename = md5(openssl_random_pseudo_bytes(128)) . ".png";
-$image = file_get_contents($tmp_image_folder . $tmpFilename);
-unlink($tmp_image_folder . $tmpFilename);
-if (!isset($_GET['unencrypted'])) {
-	$key = hash('ripemd160', rand(1, 1523542352352354) . openssl_random_pseudo_bytes(3840));
-    $encrypted = encrypt($image, $key);
-    file_put_contents($encrypted_storage_folder . $filename, $encrypted);
-	$url = str_replace("{file}", $filename, str_replace("{key}", $key, $storage_url_encrypted));
+	echo json_encode($url);
 } else {
-	file_put_contents($file_storage_folder . $filename, $image);
-	$url = $storage_url_unencrypted . $filename;
+	echo $url['url'];
 }
-echo shorten($url);
-logToSql($filename, $encrypted, $filesize, $praviusResult);
+
+$ScreenShottr->logUpload($filename, $encrypted, $filesize, $url['pravius'], $secret);
+
+
 
 
 ?>

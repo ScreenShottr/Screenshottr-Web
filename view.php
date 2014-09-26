@@ -1,23 +1,41 @@
 <?php
-require 'configs.php';
+require_once('screenshottr.php');
+require_once('config.php');
 
-if(!isset($_GET['img'])) {
-	die('Enter a Valid IMAGE ID');
+$ScreenShottr = new ScreenShottr($config, $sql);
+
+# Check that atleast an ?img parameter is provided
+if (!isset($_GET['img'])) {
+	die('No image provided');
 }
-
 
 if (isset($_GET['k'])) {
-	$file = file_get_contents($encrypted_storage_folder . $_GET['img']);
-	$key = $_GET['k'];
-	$file = decrypt($file, $key);
-	$enc = 1;
+	$imageData = $ScreenShottr->loadImage($_GET['img'], "true");
+	if ($imageData == null) {
+		die('Image does not exist.');
+	}
+	$imageData = $ScreenShottr->decrypt($imageData, $_GET['k']);
 } else {
-	$enc = 0;
-	$file = file_get_contents($file_storage_folder . $_GET['img']);
+	$imageData = $ScreenShottr->loadImage($_GET['img'], "false");
+	if ($imageData == null) {
+		die('Image does not exist.');
+	}
 }
-header("Content-type: image/png");
-getImageStatsForHeaders($_GET['img']);
-echo $file;
-logView($_GET['img'], $enc);
-exit;
+
+$ScreenShottr->cleanUp();
+$ScreenShottr->logView($_GET['img']);
+$stats = $ScreenShottr->getImageStats($_GET['img']);
+header('X-ScreenShottr-H-UploadTime: ' . $stats['uploadTimeHuman']);
+header('X-ScreenShottr-H-TimesViewed: ' . $stats['timesViewed']);
+header('X-ScreenShottr-H-Filesize: ' . $stats['filesizeHuman']);
+header('X-ScreenShottr-H-TotalBandwidth: ' . $stats['totalBandwidthHuman']);
+header('X-ScreenShottr-H-Pravius: ' . $stats['pravusURL']);
+header('X-ScreenShottr-M-ID: ' . $stats['id']);
+header('X-ScreenShottr-M-FileSize: ' . $stats['filesizeBytes']);
+header('X-ScreenShottr-M-TotalBadnwidth: ' . $stats['totalBandwidthBytes']);
+header('X-ScreenShottr-M-UploadTime: ' . $stats['uploadTimeStamp']);
+
+header('Content-type: ' . image_type_to_mime_type(array_search(substr($_GET['img'], -3), $ScreenShottr->_extensions)));
+echo $imageData;
+
 ?>
