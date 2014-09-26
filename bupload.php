@@ -34,5 +34,6 @@
 </article>
 <script src="js/bupload.js"></script>
 <script src="js/prettify.js"></script>
+<script src="js/jquery-1.10.2.js"></script>
 </body>
 </html>

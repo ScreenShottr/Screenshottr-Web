@@ -243,15 +243,21 @@ class ScreenShottr {
 		return $output;	
 	}
 	
+	public function getImageSQLData($filename) {
+		$filename = $this->sanitizeSQL($filename);
+		$data = $this->sqlQuery("SELECT * FROM ScreenShottr.imageuploads WHERE FileName='" . $filename . "'")->fetch_assoc();
+		return $data;
+	}
+	
 	public function cleanUp() {
 		$query = $this->sqlQuery("SELECT * FROM ScreenShottr.imageuploads WHERE LastViewedTimeStamp+7884000 < " . time() . ";");
 		if ($row) {
 			while($row = mysqli_fetch_array($query)) {
 				if ($row['Encrypted'] == "1") {
 					header('X-Encrypted: True');
-					deleteImage(true, $row['FileName']);
+					$this->deleteImage(true, $row['FileName']);
 				} else {
-					deleteImage(false, $row['FileName']);
+					$this->deleteImage(false, $row['FileName']);
 				}
 			}
 		}

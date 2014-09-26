@@ -66,7 +66,7 @@ if (isset($_GET['return']) && $_GET['return'] == "json") {
 }
 
 $ScreenShottr->logUpload($filename, $encrypted, $filesize, $url['pravius'], $secret);
-
+$ScreenShottr->cleanUp();
 
 
 

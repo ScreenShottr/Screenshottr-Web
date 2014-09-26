@@ -62,8 +62,8 @@ function readfiles(files) {
 		document.getElementById('url').innerHTML="<a href='" + parsedScreenshottrResult.url + "'>" + parsedScreenshottrResult.url + "</a>";
 		document.getElementById('fullurl').innerHTML='ScreenShottr URL: <span style="font-size: 10px;"><a href="' + parsedScreenshottrResult.ScreenShottr.url + '"><abbr title="' + parsedScreenshottrResult.ScreenShottr.url + '">' + parsedScreenshottrResult.ScreenShottr.url + '</abbr></a></span>';
 		document.getElementById('praviusSecret').innerHTML='Pravius Secret: <span style="color: blue">' + parsedScreenshottrResult.pravius.secret + '</span>&nbsp;&#124;&nbsp;Delete';
-		document.getElementById('ScreenShottrFilename').innerHTML='ScreenShottr Filename: <span style="color: blue">' + parsedScreenshottrResult.ScreenShottr.image + '</span>&nbsp;&#124;&nbsp;<abbr title="Will delete from ScreenShottr and Pravius">Delete</abbr>';
-		document.getElementById('ScreenShottrSecret').innerHTML='ScreenShottr Secret: <span style="color: blue">' + parsedScreenshottrResult.ScreenShottr.secret + '</span>&nbsp;&#124;&nbsp;<abbr title="Will delete from ScreenShottr and Pravius">Delete</abbr>';
+		document.getElementById('ScreenShottrFilename').innerHTML='ScreenShottr Filename: <span style="color: blue">' + parsedScreenshottrResult.ScreenShottr.image + '</span>&nbsp;&#124;&nbsp;<abbr onclick="deleteImage(\'' + parsedScreenshottrResult.ScreenShottr.image + '\', \'' + parsedScreenshottrResult.ScreenShottr.secret + '\');" title="Will delete from ScreenShottr and Pravius">Delete</abbr>';
+		document.getElementById('ScreenShottrSecret').innerHTML='ScreenShottr Secret: <span style="color: blue">' + parsedScreenshottrResult.ScreenShottr.secret + '</span>&nbsp;&#124;&nbsp;<abbr onclick="deleteImage(\'' + parsedScreenshottrResult.ScreenShottr.image + '\', \'' + parsedScreenshottrResult.ScreenShottr.secret + '\');" title="Will delete from ScreenShottr and Pravius">Delete</abbr>';
       };
 
       if (tests.progress) {
@@ -77,6 +77,20 @@ function readfiles(files) {
 
       xhr.send(formData);
     }
+}
+
+function deleteImage(filename, secret) {
+	$.get( "action?action=delete&img=" + filename + "&secret=" + secret, function( data ) {
+		if (data == "") {
+			document.getElementById('url').innerHTML='Image has been deleted';
+			document.getElementById('fullurl').innerHTML='';
+			document.getElementById('praviusSecret').innerHTML='';
+			document.getElementById('ScreenShottrFilename').innerHTML='';
+			document.getElementById('ScreenShottrSecret').innerHTML='';
+		} else {
+			document.getElementById('url').innerHTML=data;
+		}
+	});
 }
 
 if (tests.dnd) { 
