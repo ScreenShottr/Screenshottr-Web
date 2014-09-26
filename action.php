@@ -24,6 +24,6 @@ if ($_GET['action'] == "delete" && isset($_GET['img']) && isset($_GET['secret'])
 }
 
 if ($_GET['action'] == "stats" && isset($_GET['img'])) {
-	echo json_encode(getImageStats($img));
+	echo json_encode($ScreenShottr->getImageStats($_GET['img']));
 }
 ?>
