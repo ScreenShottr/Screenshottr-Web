@@ -32,7 +32,7 @@ header('X-ScreenShottr-H-TotalBandwidth: ' . $stats['totalBandwidthHuman']);
 header('X-ScreenShottr-H-Pravius: ' . $stats['pravusURL']);
 header('X-ScreenShottr-M-ID: ' . $stats['id']);
 header('X-ScreenShottr-M-FileSize: ' . $stats['filesizeBytes']);
-header('X-ScreenShottr-M-TotalBadnwidth: ' . $stats['totalBandwidthBytes']);
+header('X-ScreenShottr-M-TotalBandwidth: ' . $stats['totalBandwidthBytes']);
 header('X-ScreenShottr-M-UploadTime: ' . $stats['uploadTimeStamp']);
 
 header('Content-type: ' . image_type_to_mime_type(array_search(substr($_GET['img'], -3), $ScreenShottr->_extensions)));
