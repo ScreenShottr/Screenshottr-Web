@@ -125,7 +125,7 @@ class ScreenShottr {
 		if (isset($key)) {
 			$url = str_replace('{key}', $key, str_replace('{file}', $filename, $this->_config['encryptedUrl']));
 		} else {
-			$url = str_replace('{file}', $filename, $this->_config['encryptedUrl']);
+			$url = str_replace('{file}', $filename, $this->_config['unencryptedURL']);
 		}
 		
 		$output = array();
