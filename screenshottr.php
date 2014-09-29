@@ -148,6 +148,7 @@ class ScreenShottr {
 			
 			if ($returned['status'] != "ok" OR !$returned) {
 				$output['pravius'] = false;
+				$output['url'] = $url;
 			} else {
 				$output['pravius'] = $returned['data'];
 				$output['url'] = $returned['data']['pravius'];
