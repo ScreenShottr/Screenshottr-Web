@@ -17,6 +17,19 @@ $config = array(
 	'pravius_enabled' => true,
 	'Encryption_Key_Length' => '32',
 	'secret_key_length' => '64',
-	'filenameLength' => '32'
+	'filenameLength' => '32',
+	'twitter_Encrypted_URL' => 'https://www.screenshottr.us/v/noBot/{key}/{file}',
+	'twitter_Unencrypted_URL' => 'https://www.screenshottr.us/{file}/noBot',
+	'cloudflare_enabled' => false,
+	'twitter_card_ip' => array(
+		'199.16.156.124',
+		'199.16.156.125',
+		'199.16.156.126',
+		'199.59.148.209',
+		'199.59.148.210',
+		'199.59.148.211',
+		'199.59.149.21',
+		'199.59.149.45'
+	)
 );
 ?>
