@@ -261,8 +261,8 @@ class ScreenShottr {
 	}
 	
 	public function cleanUp() {
-		$query = $this->sqlQuery("SELECT * FROM ScreenShottr.imageuploads WHERE LastViewedTimeStamp+7884000 < " . time() . ";");
-		if ($row) {
+		$query = $this->sqlQuery("SELECT * FROM ScreenShottr.imageuploads WHERE LastViewedTimeStamp+7884000 < " . time() . " AND LastViewedTimeStamp != 0;");
+		if ($query) {
 			while($row = mysqli_fetch_array($query)) {
 				if ($row['Encrypted'] == "1") {
 					header('X-Encrypted: True');
@@ -303,6 +303,63 @@ class ScreenShottr {
 		} else {
 			return false;
 		}
+	}
+	
+	public function generateImageThumb($filename, $key = null) {
+		// Function modified from http://salman-w.blogspot.co.uk/2008/10/resize-images-using-phpgd-library.html
+		if (isset($key)) {
+			$imageData = $this->loadImage($filename, "true");
+			if ($imageData == null) {
+				die('Image does not exist.');
+			}
+			$imageData = $this->decrypt($imageData, $_GET['k']);
+		} else {
+			$imageData = $this->loadImage($_GET['img'], "false");
+			$key = false;
+			if ($imageData == null) {
+				die('Image does not exist.');
+			}
+		}
+		
+		$this->saveImage($imageData, $filename, "temp");
+		$source_image_path = $this->_config['tmpDir'] . '/' . $filename;
+		
+		list($source_image_width, $source_image_height, $source_image_type) = getimagesize($source_image_path);
+		switch ($source_image_type) {
+			case IMAGETYPE_GIF:
+				$source_gd_image = imagecreatefromgif($source_image_path);
+				break;
+			case IMAGETYPE_JPEG:
+				$source_gd_image = imagecreatefromjpeg($source_image_path);
+				break;
+			case IMAGETYPE_PNG:
+				$source_gd_image = imagecreatefrompng($source_image_path);
+				break;
+		}
+		if ($source_gd_image === false) {
+			return false;
+		}
+		$source_aspect_ratio = $source_image_width / $source_image_height;
+		$thumbnail_aspect_ratio = 280 / 375;
+		if ($source_image_width <= 280 && $source_image_height <= 375) {
+			$thumbnail_image_width = $source_image_width;
+			$thumbnail_image_height = $source_image_height;
+		} elseif ($thumbnail_aspect_ratio > $source_aspect_ratio) {
+			$thumbnail_image_width = (int) (375 * $source_aspect_ratio);
+			$thumbnail_image_height = 375;
+		} else {
+			$thumbnail_image_width = 280;
+			$thumbnail_image_height = (int) (280 / $source_aspect_ratio);
+		}
+		$thumbnail_gd_image = imagecreatetruecolor($thumbnail_image_width, $thumbnail_image_height);
+		imagecopyresampled($thumbnail_gd_image, $source_gd_image, 0, 0, 0, 0, $thumbnail_image_width, $thumbnail_image_height, $source_image_width, $source_image_height);
+		imagejpeg($thumbnail_gd_image, $this->_config['tmpDir'] . '/thumb_' . $filename, 90);
+		imagedestroy($source_gd_image);
+		imagedestroy($thumbnail_gd_image);
+		$this->deleteImage("temp", $filename);
+		$thumb = file_get_contents($this->_config['tmpDir'] . '/thumb_' . $filename);
+		$this->deleteImage("temp", 'thumb_' . $filename);
+		return $thumb;
 	}
 }
 

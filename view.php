@@ -40,7 +40,12 @@ header('X-ScreenShottr-M-UploadTime: ' . $stats['uploadTimeStamp']);
 $imageCard = $ScreenShottr->createTwitterCard($_GET['img'], $key);
 if (!$imageCard OR isset($_GET['noBot'])) {
 	header('Content-type: ' . image_type_to_mime_type(array_search(substr($_GET['img'], -3), $ScreenShottr->_extensions)));
-	echo $imageData;
+	
+	if (isset($_GET['noBot'])) {
+		echo $ScreenShottr->generateImageThumb($_GET['img'], $key);
+	} else {	
+		echo $imageData;
+	}
 } else {
 	echo $imageCard;
 }
