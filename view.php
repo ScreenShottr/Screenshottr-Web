@@ -11,12 +11,14 @@ if (!isset($_GET['img'])) {
 
 if (isset($_GET['k'])) {
 	$imageData = $ScreenShottr->loadImage($_GET['img'], "true");
+	$key = $_GET['k'];
 	if ($imageData == null) {
 		die('Image does not exist.');
 	}
 	$imageData = $ScreenShottr->decrypt($imageData, $_GET['k']);
 } else {
 	$imageData = $ScreenShottr->loadImage($_GET['img'], "false");
+	$key = false;
 	if ($imageData == null) {
 		die('Image does not exist.');
 	}
@@ -35,7 +37,12 @@ header('X-ScreenShottr-M-FileSize: ' . $stats['filesizeBytes']);
 header('X-ScreenShottr-M-TotalBandwidth: ' . $stats['totalBandwidthBytes']);
 header('X-ScreenShottr-M-UploadTime: ' . $stats['uploadTimeStamp']);
 
-header('Content-type: ' . image_type_to_mime_type(array_search(substr($_GET['img'], -3), $ScreenShottr->_extensions)));
-echo $imageData;
+$imageCard = $ScreenShottr->createTwitterCard($_GET['img'], $key);
+if (!$imageCard OR isset($_GET['noBot'])) {
+	header('Content-type: ' . image_type_to_mime_type(array_search(substr($_GET['img'], -3), $ScreenShottr->_extensions)));
+	echo $imageData;
+} else {
+	echo $imageCard;
+}
 
 ?>

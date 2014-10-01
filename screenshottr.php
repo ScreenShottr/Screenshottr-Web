@@ -5,6 +5,11 @@ class ScreenShottr {
 	public $_extensions;
 	
 	public function __construct($config, $sql) {
+		if ($config['cloudflare_enabled']) {
+			$ip = $_SERVER["HTTP_CF_CONNECTING_IP"];
+		} else {
+			$ip = $_SERVER['REMOTE_ADDR'];
+		}
 			$this->_config = array(
 				'Server' => $sql['server'],
 				'Username' => $sql['username'],
@@ -19,10 +24,15 @@ class ScreenShottr {
 				'unencDir' => $config['unencrypted_directory'],
 				'encryptedUrl' => $config['encrypted_URL'],
 				'unencryptedURL' => $config['unencrypted_URL'],
+				'twitterEncryptedURL' => $config['twitter_Encrypted_URL'],
+				'twitterUnEncryptedURL' => $config['twitter_Unencrypted_URL'],
 				'praviusEnabled' => $config['pravius_enabled'],
 				'encryptionKeyLength' => $config['Encryption_Key_Length'],
 				'secretLength' => $config['secret_key_length'],
-				'filenameLength' => $config['filenameLength']
+				'filenameLength' => $config['filenameLength'],
+				'twitterCardsIP' => $config['twitter_card_ip'],
+				'cloudFlare_Enabled' => $config['cloudflare_enabled'],
+				'clientIP' => $ip
 			);
 			
 			$this->_extensions = array(
@@ -271,6 +281,29 @@ class ScreenShottr {
 		return round(pow(1024, $base - floor($base)), $precision) . $suffixes[floor($base)];
 	}
 	
+	public function createTwitterCard($filename, $key = null) {
+		if (array_search($this->_config['clientIP'], $this->_config['twitterCardsIP'])) {
+			if (isset($key)) {
+				$urlImage = str_replace('{key}', $key, str_replace('{file}', $filename, $this->_config['twitterEncryptedURL']));
+				$url = str_replace('{key}', $key, str_replace('{file}', $filename, $this->_config['encryptedUrl']));
+			} else {
+				$urlImage = str_replace('{file}', $filename, $this->_config['twitterUnEncryptedURL']);
+				$url = str_replace('{file}', $filename, $this->_config['unencryptedURL']);
+			}			
+			
+			$twitterMeta = '<!DOCTYPE html><html><head>
+			<meta name="twitter:card" content="photo" />
+			<meta name="twitter:site" content="@ScreenShottr" />
+			<meta name="twitter:title" content="ScreenShottr image" />
+			<meta name="twitter:description" content="Free encrypted ScreenShot tool" />
+			<meta name="twitter:image" content="' . trim($urlImage) . '" />
+			<meta name="twitter:url" content="' . trim($url) . '" />
+			</head><body></body></html>';
+			return $twitterMeta;
+		} else {
+			return false;
+		}
+	}
 }
 
 ?>
