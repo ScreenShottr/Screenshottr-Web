@@ -5,23 +5,29 @@ require_once('config.php');
 $ScreenShottr = new ScreenShottr($config, $sql);
 
 # Check that atleast an ?img parameter is provided
-if (!isset($_GET['img'])) {
-	die('No image provided');
+if (!isset($_GET['img']))
+{
+    die('No image provided');
 }
 
-if (isset($_GET['k'])) {
-	$imageData = $ScreenShottr->loadImage($_GET['img'], "true");
-	$key = $_GET['k'];
-	if ($imageData == null) {
-		die('Image does not exist.');
-	}
-	$imageData = $ScreenShottr->decrypt($imageData, $_GET['k']);
-} else {
-	$imageData = $ScreenShottr->loadImage($_GET['img'], "false");
-	$key = false;
-	if ($imageData == null) {
-		die('Image does not exist.');
-	}
+if (isset($_GET['k']))
+{
+    $imageData = $ScreenShottr->loadImage($_GET['img'], "TRUE");
+    $key       = $_GET['k'];
+    if ($imageData == null)
+    {
+        die('Image does not exist.');
+    }
+    $imageData = $ScreenShottr->decrypt($imageData, $_GET['k']);
+}
+else
+{
+    $imageData = $ScreenShottr->loadImage($_GET['img'], "FALSE");
+    $key       = FALSE;
+    if ($imageData == null)
+    {
+        die('Image does not exist.');
+    }
 }
 
 $ScreenShottr->cleanUp();
@@ -38,16 +44,31 @@ header('X-ScreenShottr-M-TotalBandwidth: ' . $stats['totalBandwidthBytes']);
 header('X-ScreenShottr-M-UploadTime: ' . $stats['uploadTimeStamp']);
 
 $imageCard = $ScreenShottr->createTwitterCard($_GET['img'], $key);
-if (!$imageCard OR isset($_GET['noBot'])) {
-	header('Content-type: ' . image_type_to_mime_type(array_search(substr($_GET['img'], -3), $ScreenShottr->_extensions)));
-	
-	if (isset($_GET['noBot'])) {
-		echo $ScreenShottr->generateImageThumb($_GET['img'], $key);
-	} else {	
-		echo $imageData;
-	}
-} else {
-	echo $imageCard;
+
+
+if (!$imageCard OR isset($_GET['noBot']))
+{
+    if (isset($_GET['noBot']))
+    {
+        header('Content-type: ' . image_type_to_mime_type(array_search(substr($_GET['img'], -3), $ScreenShottr->_extensions)));
+        echo $ScreenShottr->generateImageThumb($_GET['img'], $key);
+    }
+    else
+    {
+        if (isset($_GET['landing']))
+        {
+            echo str_replace("{url}", $ScreenShottr->generateScreenShottrURL($_GET['img'], $_GET['k']), file_get_contents($ScreenShottr->_config['landingPageLocation']));
+        }
+        else
+        {
+            header('Content-type: ' . image_type_to_mime_type(array_search(substr($_GET['img'], -3), $ScreenShottr->_extensions)));
+            echo $imageData;
+        }
+    }
+}
+else
+{
+    echo $imageCard;
 }
 
 ?>

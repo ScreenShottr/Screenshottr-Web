@@ -4,7 +4,16 @@ php_value upload_max_filesize 50M
 Options -Indexes
 RewriteEngine On
 
+
+#Scenarios for unencrypted images
+RewriteRule ^([^./]+\.png)/(noBot)$ /view?img=$1$noBot=$2 [L,NC]
+RewriteRule ^([^./]+\.png)/(landing)$ /view?img=$1$landing=$2 [L,NC]
 RewriteRule ^([^./]+\.png)$ /view?img=$1 [L,NC]
+
+#Scenarios for encrypted images
+RewriteRule ^v/(noBot)/([0-9a-f]+)/([^/.]+\.(png|jpe?g|gif))$ /view?k=$2&img=$3&noBot=$1  [L]
+RewriteRule ^v/(landing)/([0-9a-f]+)/([^/.]+\.(png|jpe?g|gif))$ /view?k=$2&img=$3&landing=$1  [L]
 RewriteRule ^v/([0-9a-f]+)/([^/.]+\.(png|jpe?g|gif))$ /view?k=$1&img=$2  [L]
+
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^([^\.]+)$ $1.php [NC,L]
