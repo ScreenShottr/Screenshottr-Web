@@ -2,7 +2,7 @@
 $sql = array(
 	'server'   => 'localhost',
 	'username' => 'ScreenShottr',
-	'password' => 'PASSWORD',
+	'password' => 'KJAHLKJSDHGK',
 	'database' => 'ScreenShottr',
 	'port'     => '3306'
 );
@@ -14,6 +14,9 @@ $config = array(
 	'unencrypted_directory'   => '/var/www/html/ScreenShottr/i/',
 	'encrypted_URL'           => 'https://www.screenshottr.us/v/{key}/{file}',
 	'unencrypted_URL'         => 'https://www.screenshottr.us/{file}',
+	'encrypted_landing_URL'   => 'https://www.screenshottr.us/v/landing/{key}/{file}',
+	'unencrypted_landing_URL' => 'https://www.screenshottr.us/landing/{file}',
+	'landing_page_location'   => '/var/www/html/ScreenShottr/landingPage.php',
 	'pravius_enabled'         => TRUE,
 	'Encryption_Key_Length'   => '32',
 	'secret_key_length'       => '64',

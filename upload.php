@@ -34,7 +34,7 @@ if ($imageType == FALSE)
 }
 
 # Check if we want to turn encryption off
-if (isset($_GET['unencrypted']) && $_GET['unencrypted'] == "TRUE")
+if (isset($_GET['unencrypted']) && $_GET['unencrypted'] == "true")
 {
     $encrypted = FALSE;
 }
@@ -55,6 +55,7 @@ if ($encrypted == TRUE)
 }
 else
 {
+    $key == NULL;
     $ScreenShottr->saveImage($imageData, $filename, "FALSE");
 }
 $pravius = 'test';
@@ -70,11 +71,11 @@ if (isset($_GET['return']) && $_GET['return'] == "json")
     $url['ScreenShottrSettings']['unencryptedLandingURL'] = $ScreenShottr->_config['unencryptedLandingUrl'];
     if (isset($url['pravius']['link']))
     {
-        $url['ScreenShottr']['url'] = $url['pravius']['link'];
+        $url['ScreenShottr']['URL'] = $url['pravius']['link'];
     }
     else
     {
-        $url['ScreenShottr']['url'] = $url['url'];
+        $url['ScreenShottr']['URL'] = $url['URL'];
     }
     if ($encrypted)
     {
@@ -84,7 +85,7 @@ if (isset($_GET['return']) && $_GET['return'] == "json")
 }
 else
 {
-    echo $url['url'];
+    echo $url['URL'];
 }
 
 $ScreenShottr->logUpload($filename, $encrypted, $filesize, $url['pravius'], $secret);

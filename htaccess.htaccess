@@ -7,7 +7,7 @@ RewriteEngine On
 
 #Scenarios for unencrypted images
 RewriteRule ^([^./]+\.png)/(noBot)$ /view?img=$1$noBot=$2 [L,NC]
-RewriteRule ^([^./]+\.png)/(landing)$ /view?img=$1$landing=$2 [L,NC]
+RewriteRule ^(landing)/([^./]+\.png)$ /view?img=$2&landing=$1 [L,NC]
 RewriteRule ^([^./]+\.png)$ /view?img=$1 [L,NC]
 
 #Scenarios for encrypted images

@@ -16,17 +16,17 @@ if (isset($_GET['k']))
     $key       = $_GET['k'];
     if ($imageData == null)
     {
-        die('Image does not exist.');
+        die('Image does not exist: ' . $_SERVER['QUERY_STRING']);
     }
     $imageData = $ScreenShottr->decrypt($imageData, $_GET['k']);
 }
 else
 {
     $imageData = $ScreenShottr->loadImage($_GET['img'], "FALSE");
-    $key       = FALSE;
+    $key       = NULL;
     if ($imageData == null)
     {
-        die('Image does not exist.');
+        die('Image does not exist: ' . $_SERVER['QUERY_STRING']);
     }
 }
 
@@ -57,7 +57,8 @@ if (!$imageCard OR isset($_GET['noBot']))
     {
         if (isset($_GET['landing']))
         {
-            echo str_replace("{url}", $ScreenShottr->generateScreenShottrURL($_GET['img'], $_GET['k']), file_get_contents($ScreenShottr->_config['landingPageLocation']));
+            $url = $ScreenShottr->generateScreenShottrURL($_GET['img'], $key);
+            echo str_replace("{url}", $url['main'], file_get_contents($ScreenShottr->_config['landingPageLocation']));
         }
         else
         {

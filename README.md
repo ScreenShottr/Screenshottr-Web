@@ -12,7 +12,7 @@ Online image hosting service
 Requirements
 -----------
 
-ScreenShottr Requires the following to work correctly
+Dillinger uses a number of open source projects to work properly:
 
 * PHP 5.4 or higher
 * PHP MCrypt
