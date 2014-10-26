@@ -195,9 +195,10 @@ class ScreenShottr
                 )
             );
             $context  = stream_context_create($opts);
-            $returned = json_decode(file_get_contents('https://pravi.us/api/shortenurl', FALSE, $context), TRUE);
+			$praviusRAW = file_get_contents('https://pravi.us/api/shortenurl', FALSE, $context);
+            $returned = json_decode($praviusRAW, TRUE);
 
-            if ($returned['status'] != "ok" OR !$returned)
+            if (!$praviusRAW OR $returned['status'] != "ok")
             {
                 $output['pravius'] = FALSE;
                 $output['URL']     = $url;
@@ -212,7 +213,8 @@ class ScreenShottr
         else
         {
             $output['pravius'] = FALSE;
-            $output['URL']     = $url;
+            $output['URL']     = $url['main'];
+			$output['landingURL'] = $url['landing'];
         }
         return $output;
     }
