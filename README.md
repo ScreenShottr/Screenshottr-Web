@@ -99,4 +99,4 @@ This will return something in the following format
 ```
 
 ##### EXIF Data
-Currently ScreenShottr does not remove EXIF data.
+ScreenShottr removes EXIF data, not from the saved image, however the data is stripped from the image before it is served.
