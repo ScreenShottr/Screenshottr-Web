@@ -20,6 +20,8 @@ class ScreenShottr
             'Username' => $sql['username'],
             'Password' => $sql['password'],
             'Database' => $sql['database'],
+            'Port'     => $sql['Port'],
+            'Tableprefix' => $sql['tableprefix'],
             'crypt' => array(
                 'hashingAlgorithm' => $config['hashing_algorithm'],
                 'encryptionAlgorithm' => $config['encryption_algorithm']
@@ -65,10 +67,11 @@ class ScreenShottr
             IMAGETYPE_ICO => "ico"
         );
 
-        $this->_connection = new mysqli($this->_config['Server'], $this->_config['Username'], $this->_config['Password'], $this->_config['Database']);
+        $this->_connection = @new mysqli($this->_config['Server'], $this->_config['Username'], $this->_config['Password'], $this->_config['Database'], $this->_config['Port']);
 
         if ($this->_connection->connect_error)
         {
+        	// Will add proper error handling
             exit('Error connecting to MySQL: ' . $this->_connection->connect_error);
         }
 
@@ -85,6 +88,42 @@ class ScreenShottr
         $result = $this->Connection()->query($sql);
         return $result;
     }
+    
+    /**
+     * Will create separate classes, but for the mean time, this will work fine.
+     */
+     private function refValues($arr)
+     {
+     	if (strnatcmp(phpversion(), '5.3') >= 0)
+     	{
+     		$refs = array();
+     		foreach ($arr as $key => $value)
+     		{
+     			$refs[$key] =& $arr[$key];
+     		}
+     		return $refs;
+     	}
+     	return $arr;
+     }
+     
+     protected function statement($sql, $params)
+     {
+     	if ( ! $stmt = $this->Connection()->prepare($sql))
+     	{
+     		// Need proper error handling
+     		return FALSE;
+     	}
+     	if ( ! empty($params))
+     	{
+     		call_user_func_array(array($stmt, 'bind_param'), $this->RefValues($params));
+     	}
+     	if ( ! $stmt->execute())
+     	{
+     		// Need proper error handling
+     		return FALSE;
+     	}
+     	return $stmt;
+     }
 
     public function sanitizeSQL($string)
     {
